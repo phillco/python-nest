@@ -320,6 +320,24 @@ class Device(NestBase):
     def is_smoke_co_alarm(self):
         return False
 
+    def to_dict(self):
+        device = self
+        result = {
+            "name": self.name,
+            "state": self.hvac_state,
+            "mode": self.mode,
+            "away": self.structure.away,
+            "temperature": self.temperature,
+            "temperature_scale": self.temperature_scale,
+        }
+
+        if self.has_fan:
+            result["fan"] = self.fan
+            result["fan_timer"] = self.fan_timer
+
+        result["target"] = device.target
+        return result
+
 
 class Thermostat(Device):
     @property

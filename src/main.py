@@ -9,6 +9,7 @@ from __future__ import print_function
 
 import argparse
 import datetime
+import json
 import logging
 import os
 import sys
@@ -50,6 +51,8 @@ def get_parser():
 
     parser.add_argument('-t', '--token', dest='token',
                         help='auth access token', metavar='TOKEN')
+
+    parser.add_argument('-j', '--json', action="store_true")
 
     parser.add_argument('--client-id', dest='client_id',
                         help='product id on developer.nest.com', metavar='ID')
@@ -254,6 +257,10 @@ def handle_protect_show_commands(napi, args):
         except KeyboardInterrupt:
             return
 
+
+def handle_show_commands_json(device):
+
+    print(json.dumps(device.to_dict()))
 
 def handle_show_commands(napi, device, display_temp, print_prompt,
                          print_meta_data=True):
@@ -479,16 +486,19 @@ def main():
                 print('%0.1f' % display_temp(target))
 
         elif cmd == 'show':
-            handle_show_commands(napi, device, display_temp, args.keep_alive)
-            if args.keep_alive:
-                try:
-                    napi.update_event.clear()
-                    while napi.update_event.wait():
+            if args.json:
+                handle_show_commands_json(device)
+            else:
+                handle_show_commands(napi, device, display_temp, args.keep_alive)
+                if args.keep_alive:
+                    try:
                         napi.update_event.clear()
-                        handle_show_commands(napi, device, display_temp,
-                                             True, False)
-                except KeyboardInterrupt:
-                    return
+                        while napi.update_event.wait():
+                            napi.update_event.clear()
+                            handle_show_commands(napi, device, display_temp,
+                                                 True, False)
+                    except KeyboardInterrupt:
+                        return
 
 
 if __name__ == '__main__':
