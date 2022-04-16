@@ -29,6 +29,6 @@ setup(name='python-nest',
                         'sseclient-py',
                         'python-dateutil'],
       entry_points={
-          'console_scripts': ['nest=nest.command_line:main'],
+          'console_scripts': ['nest=src.main:main'],
       }
       )

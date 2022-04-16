@@ -8,6 +8,7 @@ requests = ">=1.0.0"
 six = ">=1.10.0'"
 sseclient-py = "*"
 python-dateutil = "*"
+pyinstaller = "*"
 
 [dev-packages]
 
