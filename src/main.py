@@ -14,9 +14,9 @@ import os
 import sys
 import errno
 
-from . import nest
-from . import utils
-from . import helpers
+from nest import nest
+from nest import utils
+from nest import helpers
 
 # use six for python2/python3 compatibility
 from six.moves import input
