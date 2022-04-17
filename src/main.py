@@ -133,6 +133,9 @@ def get_parser():
                                  'temp')
 
     subparsers.add_parser('show', help='show everything')
+    subparsers.add_parser('start-cooling', help='show everything')
+    subparsers.add_parser('stop-cooling', help='show everything')
+    subparsers.add_parser('stabilize', help='show everything')
 
     # Camera parsers
     subparsers.add_parser('camera-show',
@@ -258,10 +261,6 @@ def handle_protect_show_commands(napi, args):
             return
 
 
-def handle_show_commands_json(device):
-
-    print(json.dumps(device.to_dict()))
-
 def handle_show_commands(napi, device, display_temp, print_prompt,
                          print_meta_data=True):
     if print_meta_data:
@@ -354,6 +353,20 @@ def main():
                   "titled as per the documentation-otherwise, call with "
                   "--client-id and --client-secret.")
             return
+
+    def adjust_relative_to_temperature(increment: int) -> bool:
+        """"""
+        # TODO(pcohen): doesn't support heat & cool mode
+        temperature = device.temperature
+        old_target = device.target
+        new_target = device.temperature + increment
+        if new_target == old_target:
+            print(f"Nothing to do; target is already {new_target}. (temp is {temperature})")
+            return False
+
+        device.temperature = new_target
+        print(f"Moved target from {old_target} to {new_target}! (temp is {temperature})")
+        return True
 
     with nest.Nest(client_id=args.client_id, client_secret=args.client_secret,
                    access_token=args.token,
@@ -487,7 +500,7 @@ def main():
 
         elif cmd == 'show':
             if args.json:
-                handle_show_commands_json(device)
+                print(json.dumps(device.to_dict()))
             else:
                 handle_show_commands(napi, device, display_temp, args.keep_alive)
                 if args.keep_alive:
@@ -499,6 +512,14 @@ def main():
                                                  True, False)
                     except KeyboardInterrupt:
                         return
+
+        elif cmd == 'start-cooling':
+            sys.exit(0 if adjust_relative_to_temperature(-2) else 1)
+        elif cmd == 'stop-cooling':
+            sys.exit(0 if adjust_relative_to_temperature(2) else 1)
+        elif cmd == 'stabilize':
+            sys.exit(0 if adjust_relative_to_temperature(0) else 1)
+
 
 
 if __name__ == '__main__':
